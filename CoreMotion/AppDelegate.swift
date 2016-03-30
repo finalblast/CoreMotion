@@ -17,12 +17,55 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     lazy var queue = NSOperationQueue()
     lazy var pedometer = CMPedometer()
     var motionManage = CMMotionManager()
-
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        
+        if motionManage.gyroAvailable {
+            
+            println("Gyro is available")
+            if motionManage.gyroActive == false {
+                
+                println("Gyro is not active")
+                motionManage.gyroUpdateInterval = 1.0 / 40.0
+                motionManage.startGyroUpdatesToQueue(queue, withHandler: { (data, error) -> Void in
+                    
+                    println("Gyro rotation x = \(data.rotationRate.x)")
+                    println("Gyro rotation y = \(data.rotationRate.y)")
+                    println("Gyro rotation z = \(data.rotationRate.z)")
+                    
+                })
+                
+            } else {
+                
+                println("Gyro is already active")
+                
+            }
+            
+        } else {
+            
+            println("Gyro is not available")
+            
+        }
         
         if motionManage.accelerometerAvailable {
             
             println("Accelerometer is available")
+            if motionManage.accelerometerActive == false {
+                
+                println("Accelerometer is not active")
+                motionManage.startAccelerometerUpdatesToQueue(queue, withHandler: { (data, error) -> Void in
+                    
+                    println("X = \(data.acceleration.x)")
+                    println("Y = \(data.acceleration.y)")
+                    println("Z = \(data.acceleration.z)")
+                    
+                })
+                
+            } else {
+                
+                println("Accelerometer is already active")
+                
+            }
             
         } else {
             
@@ -30,22 +73,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
         }
         
-        if motionManage.accelerometerActive {
-            
-            println("Accelerometer is active")
-            
-        } else {
-            
-            println("Accelerometer is not active")
-            
-        }
         return true
+    
     }
 
     func applicationWillResignActive(application: UIApplication) {
        
         altimeter.stopRelativeAltitudeUpdates()
         pedometer.stopPedometerUpdates()
+        motionManage.stopAccelerometerUpdates()
         
     }
 

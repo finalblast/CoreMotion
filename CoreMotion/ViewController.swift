@@ -20,6 +20,17 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    override func motionEnded(motion: UIEventSubtype, withEvent event: UIEvent) {
+        
+        if motion == UIEventSubtype.MotionShake {
+            
+            let controller = UIAlertController(title: "Shake", message: "The device is shaken", preferredStyle: UIAlertControllerStyle.Alert)
+            controller.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+            presentViewController(controller, animated: true, completion: nil)
+            
+        }
+        
+    }
 
 }
 
