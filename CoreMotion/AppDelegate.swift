@@ -15,15 +15,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     lazy var altimeter = CMAltimeter()
     lazy var queue = NSOperationQueue()
+    lazy var pedometer = CMPedometer()
+    var motionManage = CMMotionManager()
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        if motionManage.accelerometerAvailable {
+            
+            println("Accelerometer is available")
+            
+        } else {
+            
+            println("Accelerometer is not available")
+            
+        }
+        
+        if motionManage.accelerometerActive {
+            
+            println("Accelerometer is active")
+            
+        } else {
+            
+            println("Accelerometer is not active")
+            
+        }
         return true
     }
 
     func applicationWillResignActive(application: UIApplication) {
        
         altimeter.stopRelativeAltitudeUpdates()
+        pedometer.stopPedometerUpdates()
         
     }
 
@@ -40,6 +62,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if CMAltimeter.isRelativeAltitudeAvailable() {
             
+            println("Altimeter is available")
             altimeter.startRelativeAltitudeUpdatesToQueue(queue, withHandler: { (data, error) -> Void in
                 
                 println("Relative altitude is \(data.relativeAltitude) meters.")
@@ -48,7 +71,53 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
         } else {
             
-            println("Not available")
+            println("Altimeter is not available")
+            
+        }
+        
+        if CMPedometer.isStepCountingAvailable() {
+            
+            println("Step counting is available")
+            pedometer.startPedometerUpdatesFromDate(NSDate(), withHandler: { (data, error) -> Void in
+                
+                println("Step: \(data.numberOfSteps)")
+                
+            })
+            
+        } else {
+            
+            println("Step counting is not available")
+            
+        }
+        
+        if CMPedometer.isFloorCountingAvailable() {
+            
+            println("Floor counting is available")
+            pedometer.queryPedometerDataFromDate(NSDate.tenMinuteAgo(), toDate: NSDate.now(), withHandler: { (data, error) -> Void in
+                
+                println("Floor ascended: \(data.floorsAscended)")
+                println("Floor descended: \(data.floorsDescended)")
+                
+            })
+            
+        } else {
+            
+            println("Floor counting is not available")
+            
+        }
+        
+        if CMPedometer.isDistanceAvailable() {
+            
+            println("Distance is available")
+            pedometer.queryPedometerDataFromDate(NSDate.yesterday(), toDate: NSDate.now(), withHandler: { (data, error) -> Void in
+                
+                println("Distance: \(data.distance)")
+                
+            })
+            
+        } else {
+            
+            println("Distance is not available")
             
         }
         
@@ -58,6 +127,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-
 }
 
+extension NSDate {
+    
+    class func now() -> NSDate {
+        
+        return NSDate()
+        
+    }
+    
+    class func yesterday() -> NSDate {
+        
+        return NSDate(timeIntervalSinceNow: -(24 * 60 * 60))
+        
+    }
+    
+    class func tenMinuteAgo() -> NSDate {
+        
+        return NSDate(timeIntervalSinceNow: -(10 * 60))
+        
+    }
+    
+}
